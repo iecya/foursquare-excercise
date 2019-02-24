@@ -19,7 +19,7 @@
                                                        {:query input})})]
     (-> @searched-place :body (json/read-str :key-fn keyword) :response :venues first)))
 
-(defn- get-recomended-venues
+(defn- get-recommended-venues
   [{:keys [location]}]
   (let [api-resp (http/get "https://api.foursquare.com/v2/venues/explore"
                            {:query-params (merge app-config
@@ -38,11 +38,11 @@
   [venues]
   (map format-venue venues))
 
-(defn- get-recomendetions
+(defn- get-recommendetions
   [input]
   (let [searched-place (get-searched-venue input)]
     (-> searched-place
-        get-recomended-venues
+        get-recommended-venues
         format-venues)))
 
 (def separator "\n\n================\n\n")
@@ -55,10 +55,12 @@
   "I don't do a whole lot."
   [& args]
   (println "// ----- Welcome to Foursquare API excercise ----- \\\\")
-  (println "Please input a place to search or type 'exit' to stop the app")
+  (println "Please input a place to search or stop the app (type 'exit' or press Ctrl + C)")
   (loop [*in* (read-line)]
-        (if (= "exit" *in*)
-          (println "good bye")
-          (do
-            (println (output-result (get-recomendetions *in*)))
-            (recur (read-line))))))
+    (cond
+      (nil? (seq *in*)) (do (println (str "Please input a valid place" separator))
+                            (recur (read-line)))
+      (= "exit" *in*) (println "Good bye")
+      :default (do
+                 (println (output-result (get-recommendetions *in*)))
+                 (recur (read-line))))))
