@@ -21,10 +21,11 @@
 
 (defn- get-recomended-venues
   [{:keys [location]}]
-  (let [api-resp (http/get "https://api.foursquare.com/v2/venues/search"
+  (let [api-resp (http/get "https://api.foursquare.com/v2/venues/explore"
                            {:query-params (merge app-config
-                                                 {:ll (str (:lat location) "," (:lng location))})})]
-    (-> @api-resp :body (json/read-str :key-fn keyword) :response :venues)))
+                                                 {:ll (str (:lat location) "," (:lng location))})})
+        groups (-> @api-resp :body (json/read-str :key-fn keyword) :response :groups)]
+    (->> groups (filter #(= "recommended" (:name %))) (mapcat :items) (map :venue))))
 
 (defn- format-venue
   [venue]
