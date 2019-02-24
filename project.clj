@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main foursquare-excercise.core
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [http-kit "2.3.0"]])
+                 [http-kit "2.3.0"]
+                 [org.clojure/data.json "0.2.6"]])

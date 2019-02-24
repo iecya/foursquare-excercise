@@ -1,5 +1,6 @@
 (ns foursquare-excercise.core
-  (:require [org.httpkit.client :as http])
+  (:require [org.httpkit.client :as http]
+            [clojure.data.json :as json])
     (:gen-class))
 
 (def ^:private app-config {:client_id "OZE3X22Y4Z41PHWBUAFRU1RIUVS4Q3WJCXC1ZEDLNQOMBJ1I"
@@ -7,17 +8,25 @@
 
 (def default-opts
   (merge app-config
-         {:intent "global"
-          :v "20190224"}))
+         {
+          ;:intent "global"
+          :v "20190224"
+          }))
+
+(defn- get-searched-venue
+  [input]
+  (let [searched-place (http/get "https://api.foursquare.com/v2/venues/explore"
+                                 {:query-params (merge default-opts
+                                                       {:near input
+                                                        :query input})})]
+    (clojure.pprint/pprint @searched-place)
+    (clojure.pprint/pprint (-> @searched-place :body (json/read-str :key-fn keyword) :response :groups :items))
+    (-> @searched-place :body (json/read-str :key-fn keyword) :response :venues first)))
 
 (defn- get-recomendetions
   [input]
-  (let [
-        searched-place (http/get "https://api.foursquare.com/v2/venues/search"
-                                 {:query-params (merge default-opts
-                                                       {:query input})})]
-    (println "Result " @searched-place)
-    @searched-place))
+  (let [searched-place (get-searched-venue input)]
+    searched-place))
 
 
 (defn -main
@@ -29,5 +38,5 @@
         (if (= "exit" *in*)
           (println "good bye")
           (do
-            (get-recomendetions *in*)
+            (println (get-recomendetions *in*))
             (recur (read-line))))))
