@@ -1,6 +1,7 @@
 (ns foursquare-excercise.core
   (:require [org.httpkit.client :as http]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [clojure.string :as string])
     (:gen-class))
 
 (def ^:private app-config {:client_id "OZE3X22Y4Z41PHWBUAFRU1RIUVS4Q3WJCXC1ZEDLNQOMBJ1I"
@@ -23,18 +24,31 @@
   (let [api-resp (http/get "https://api.foursquare.com/v2/venues/search"
                            {:query-params (merge app-config
                                                  {:ll (str (:lat location) "," (:lng location))})})]
-    (println "Api resp for recomendations <<<<<<")
-    (clojure.pprint/pprint (-> @api-resp :body (json/read-str :key-fn keyword) :response :venues))
-    api-resp))
+    (-> @api-resp :body (json/read-str :key-fn keyword) :response :venues)))
+
+(defn- format-venue
+  [venue]
+  (str (:name venue) "\n"
+       (get-in venue [:location :address] "Address not available") "\n"
+       (get-in venue [:location :postalCode] "Postal code not available") " - "
+       (get-in venue [:location :city] "City not available")))
+
+(defn- format-venues
+  [venues]
+  (map format-venue venues))
 
 (defn- get-recomendetions
   [input]
   (let [searched-place (get-searched-venue input)]
-    (println "Searched place >>>>>")
-    (clojure.pprint/pprint searched-place)
-    (get-recomended-venues searched-place)
-    searched-place))
+    (-> searched-place
+        get-recomended-venues
+        format-venues)))
 
+(def separator "\n\n================\n\n")
+
+(defn- output-result
+  [venues]
+  (str separator (string/join separator venues) separator))
 
 (defn -main
   "I don't do a whole lot."
@@ -45,5 +59,5 @@
         (if (= "exit" *in*)
           (println "good bye")
           (do
-            (get-recomendetions *in*)
+            (println (output-result (get-recomendetions *in*)))
             (recur (read-line))))))
