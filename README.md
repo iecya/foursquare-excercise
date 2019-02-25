@@ -1,14 +1,9 @@
 # foursquare_excercise
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure application integrated with Foursquare API that allow users find recommended venues in the area of a place of their choice.
 
 ## Usage
 
-FIXME
+In the terminal either run `lein run` or `bin/run.sh` (requires java to run the from the jar)
 
-## License
 
-Copyright © 2019 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
