@@ -41,7 +41,7 @@
 (defn- get-recommendetions
   [input]
   (let [searched-place (get-searched-venue input)]
-    (-> searched-place
+    (some-> searched-place
         get-recommended-venues
         format-venues)))
 
@@ -49,7 +49,9 @@
 
 (defn- output-result
   [venues]
-  (str separator (string/join separator venues) separator))
+  (if venues
+    (str separator (string/join separator venues) separator)
+    (str "Sorry, we couldn't find any places matching your criteria" separator)))
 
 (defn -main
   "I don't do a whole lot."
